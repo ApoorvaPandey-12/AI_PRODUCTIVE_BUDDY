@@ -1,9 +1,11 @@
 import streamlit as st
 from openai import OpenAI
+from openai.error import RateLimitError
 
-# Initialize client
+# Initialize client using Streamlit Secrets
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+# Streamlit page config
 st.set_page_config(page_title="AI Productive Buddy", page_icon="🤖", layout="centered")
 
 st.title("🤖 AI Productive Buddy")
@@ -52,16 +54,21 @@ user_input = st.text_area("Or type your own question here:")
 # Final question to answer
 final_question = user_input if user_input.strip() else selected_question
 
-# Function to get AI response
+# Function to get AI response with error handling
 def get_ai_response(query):
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful productivity buddy."},
-            {"role": "user", "content": query}
-        ]
-    )
-    return response.choices[0].message.content.strip()
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful productivity buddy."},
+                {"role": "user", "content": query}
+            ]
+        )
+        return response.choices[0].message.content.strip()
+    except RateLimitError:
+        return "⚠️ Sorry, the OpenAI API rate limit has been reached. Please try again in a few seconds."
+    except Exception as e:
+        return f"⚠️ An error occurred: {str(e)}"
 
 # Show answer
 if st.button("🚀 Get Answer"):
