@@ -1,81 +1,44 @@
+import random
 import streamlit as st
-from openai import OpenAI
 
-
-# Initialize client using Streamlit Secrets
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-# Streamlit page config
-st.set_page_config(page_title="AI Productive Buddy", page_icon="🤖", layout="centered")
-
-st.title("🤖 AI Productive Buddy")
-st.write("Your AI-powered assistant to boost focus, productivity, and learning!")
-
-# Predefined questions
-questions = {
-    "Productivity & Time Management": [
-        "Suggest a daily routine for better focus.",
-        "Give me a 25-minute Pomodoro timer plan.",
-        "Remind me to drink water every 2 hours.",
-        "Summarize my to-do list into priorities."
+# Predefined responses
+responses = {
+    "lazy": [
+        "Start with just 5 minutes of work, momentum will follow.",
+        "Break tasks into tiny steps – the smaller, the easier to begin."
     ],
-    "Learning & Knowledge": [
-        "Explain AI in simple words.",
-        "Give me 3 quick facts about machine learning.",
-        "Summarize this paragraph into key points."
+    "distracted": [
+        "Put your phone away for 20 minutes and focus.",
+        "Write down the distraction, promise yourself you’ll check later."
     ],
-    "Writing & Notes": [
-        "Draft a short motivational note for today.",
-        "Generate a quick LinkedIn post idea about productivity.",
-        "Correct grammar in this sentence: I has a dream to be success."
+    "tired": [
+        "Drink some water, stretch, and reset your mind.",
+        "Take a 10-minute break, then jump back in with energy."
     ],
-    "Wellbeing": [
-        "Suggest a 2-minute breathing exercise.",
-        "Give me a quick motivational quote.",
-        "List 3 simple ways to avoid procrastination."
+    "overwhelmed": [
+        "Write your tasks down, then pick just ONE to do first.",
+        "Small steps lead to big wins – focus on the next step only."
     ],
-    "Efficiency Boost": [
-        "Break this big task into smaller steps: Finish my semester project.",
-        "Suggest tools/apps for productivity.",
-        "How do I stay consistent with my goals?"
+    "unmotivated": [
+        "Remember why you started – your goals are waiting for you.",
+        "Motivation comes after action, not before. Start small."
     ]
 }
 
-# Dropdown for category
-category = st.selectbox("📌 Choose a category", ["Type my own question"] + list(questions.keys()))
+def ai_buddy(feeling):
+    feeling = feeling.lower()
+    for key in responses:
+        if key in feeling:
+            return random.choice(responses[key])
+    return "Stay consistent, even tiny progress counts today!"
 
-selected_question = None
-if category != "Type my own question":
-    selected_question = st.selectbox("💡 Pick a question", questions[category])
+# Streamlit UI
+st.set_page_config(page_title="AI Productivity Buddy", page_icon="🤖")
+st.title("🤖 AI Productivity Buddy")
+st.write("Tell me how you feel, and I’ll give you a quick tip!")
 
-# User input
-user_input = st.text_area("Or type your own question here:")
+user_input = st.text_input("How are you feeling right now?")
 
-# Final question to answer
-final_question = user_input if user_input.strip() else selected_question
-
-# Function to get AI response with error handling
-def get_ai_response(query):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful productivity buddy."},
-                {"role": "user", "content": query}
-            ]
-        )
-        return response.choices[0].message.content.strip()
-    
-
-        
-    except Exception as e:
-        return f"⚠️ An error occurred: {str(e)}"
-
-# Show answer
-if st.button("🚀 Get Answer"):
-    if final_question:
-        st.subheader("🤖 Buddy's Answer:")
-        with st.spinner("Thinking..."):
-            st.write(get_ai_response(final_question))
-    else:
-        st.warning("Please select or type a question.")
+if st.button("Get Tip"):
+    tip = ai_buddy(user_input)
+    st.success(tip)
