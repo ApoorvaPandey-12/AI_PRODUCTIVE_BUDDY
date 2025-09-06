@@ -65,8 +65,8 @@ def get_ai_response(query):
             ]
         )
         return response.choices[0].message.content.strip()
-    except RateLimitError:
-        return "⚠️ Sorry, the OpenAI API rate limit has been reached. Please try again in a few seconds."
+
+        
     except Exception as e:
         return f"⚠️ An error occurred: {str(e)}"
 
