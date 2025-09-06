@@ -1,6 +1,6 @@
 import streamlit as st
 from openai import OpenAI
-from openai.error import RateLimitError
+from openai.error import OpenAIError
 
 # Initialize client using Streamlit Secrets
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
