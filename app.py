@@ -1,6 +1,6 @@
 import streamlit as st
 from openai import OpenAI
-from openai.error import RateLimitError, APIError, APIConnectionError
+
 
 # Initialize client using Streamlit Secrets
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -65,10 +65,7 @@ def get_ai_response(query):
             ]
         )
         return response.choices[0].message.content.strip()
-    except RateLimitError:
-        return "⚠️ Rate limit reached. Please try again in a few seconds."
-    except (APIError, APIConnectionError) as e:
-        return f"⚠️ OpenAI API error: {str(e)}"
+    
 
         
     except Exception as e:
